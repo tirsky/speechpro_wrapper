@@ -5,7 +5,7 @@ import wave
 import pyaudio
 from requests import Session, post, get
 
-SPEECH_PRO_WAV = 'http://www.speechpro.ru/voice-fabric/text-to-voice/'
+SPEECH_PRO_WAV = 'http://www.speechpro.ru/voice-fabric/text-to-voice'
 SPEECHPRO_URL = 'http://www.speechpro.ru/'
 
 
@@ -61,7 +61,7 @@ class SessionSpeech:
             ('csrfmiddlewaretoken', self.csrftoken),
         ]
 
-        res = post('http://www.speechpro.ru/voice-fabric/text-to-voice', headers=headers, cookies=cookies, data=data)
+        res = post(self.download_url, headers=headers, cookies=cookies, data=data)
         wav_url = res.json()['response']
         wav_url_file = headers['Origin'] + '/' + wav_url
         chunk = 1024
