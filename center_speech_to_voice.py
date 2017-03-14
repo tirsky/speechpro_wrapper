@@ -36,7 +36,7 @@ class SessionSpeech:
         self.csrftoken = res.headers['Set-Cookie'].split(';')[0].split('=')[1]
         self.cookie = self.ses.cookies.get_dict()['sessionid']
 
-    def download(self):
+    def text_to_speech(self, text):
         cookies = {
             'sessionid': self.cookie,
             'csrftoken': self.csrftoken,
@@ -59,7 +59,7 @@ class SessionSpeech:
 
         data = [
             ('text',
-             'Вот это даа! Работает, собака!'),
+             text),
             ('csrfmiddlewaretoken', self.csrftoken),
         ]
 
@@ -71,4 +71,4 @@ class SessionSpeech:
 
 if __name__ == "__main__":
     c = SessionSpeech(url, url_download)
-    c.download()
+    c.text_to_speech('Need text here in Russian: НАпример, вот такой текст ,всё равно что тут будет:)')
