@@ -34,7 +34,7 @@ class SessionSpeech:
         self.csrftoken = res.headers['Set-Cookie'].split(';')[0].split('=')[1]
         self.cookie = self.ses.cookies.get_dict()['sessionid']
 
-    def text_to_speech(self, text_to_voice, listen=False, path='.'):
+    def text_to_speech(self, text_to_voice, listen=False, path=None):
         cookies = {
             'sessionid': self.cookie,
             'csrftoken': self.csrftoken,
