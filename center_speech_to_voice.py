@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import wave
+import shutil
 
 import pyaudio
 from requests import Session, post, get
@@ -33,7 +34,7 @@ class SessionSpeech:
         self.csrftoken = res.headers['Set-Cookie'].split(';')[0].split('=')[1]
         self.cookie = self.ses.cookies.get_dict()['sessionid']
 
-    def text_to_speech(self, text_to_voice):
+    def text_to_speech(self, text_to_voice, listen=False, path='.'):
         cookies = {
             'sessionid': self.cookie,
             'csrftoken': self.csrftoken,
@@ -66,21 +67,27 @@ class SessionSpeech:
         wav_url_file = headers['Origin'] + '/' + wav_url
         chunk = 1024
         r = get(wav_url_file, stream=True)
-        wf = wave.open(r.raw, 'rb')
-        p = pyaudio.PyAudio()
-        stream = p.open(
-                format=p.get_format_from_width(wf.getsampwidth()),
-                channels=wf.getnchannels(),
-                rate=wf.getframerate(),
-                output=True)
-        data = wf.readframes(chunk)
-
-        while data != '':
-            stream.write(data)
+        if listen:
+            wf = wave.open(r.raw, 'rb')
+            p = pyaudio.PyAudio()
+            stream = p.open(
+                    format=p.get_format_from_width(wf.getsampwidth()),
+                    channels=wf.getnchannels(),
+                    rate=wf.getframerate(),
+                    output=True)
             data = wf.readframes(chunk)
 
-        stream.close()
-        p.terminate()
+            while data != '':
+                stream.write(data)
+                data = wf.readframes(chunk)
+
+            stream.close()
+            p.terminate()
+        else:
+            if r.status_code == 200:
+                with open(path, 'wb') as f:
+                    r.raw.decode_content = True
+                    shutil.copyfileobj(r.raw, f)
 
 
 if __name__ == "__main__":
@@ -89,4 +96,4 @@ if __name__ == "__main__":
         text = sys.argv[1]
     except IndexError:
         text = 'Например, вот такой текст, всё равно что тут будет:) и даже если 2323445 миллионов...'
-    c.text_to_speech(text)
+    c.text_to_speech(text, listen=False, path='file.wav') #Path путь для сохранения файла.
