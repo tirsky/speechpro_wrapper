@@ -6,8 +6,8 @@ import shutil
 import pyaudio
 from requests import Session, post, get
 
-SPEECH_PRO_WAV = 'http://www.speechpro.ru/voice-fabric/text-to-voice'
-SPEECHPRO_URL = 'http://www.speechpro.ru/'
+SPEECH_PRO_WAV = 'https://www.speechpro.ru/voice-fabric/text-to-voice'
+SPEECHPRO_URL = 'https://www.speechpro.ru/'
 
 
 class SessionSpeech:
@@ -20,7 +20,7 @@ class SessionSpeech:
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
             'Accept-Encoding': 'gzip, deflate, sdch',
-            'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4',
+            'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4,und;q=0.2',
             'Cache-Control': 'no-cache',
             'Connection': 'keep-alive',
             'DNT': 1,
@@ -28,10 +28,10 @@ class SessionSpeech:
             'Pragma': 'no-cache',
             'Upgrade-Insecure-Requests': 1,
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
-                          '(KHTML, like Gecko) Ubuntu Chromium/56.0.2924.76 Chrome/56.0.2924.76 Safari/537.36',
+                          '(KHTML, like Gecko) Ubuntu Chromium/61.0.3163.79 Chrome/61.0.3163.79 Safari/537.36',
         }
         res = self.ses.get(url)
-        self.csrftoken = res.headers['Set-Cookie'].split(';')[0].split('=')[1]
+        self.csrftoken = self.ses.cookies.get_dict()['csrftoken']
         self.cookie = self.ses.cookies.get_dict()['sessionid']
 
     def text_to_speech(self, text_to_voice, listen=False, path=None):
@@ -43,16 +43,16 @@ class SessionSpeech:
         headers = {
             'Pragma': 'no-cache',
             'Origin': 'http://www.speechpro.ru',
-            'Accept-Encoding': 'gzip, deflate',
-            'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4,und;q=0.2',
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
-                          '(KHTML, like Gecko) Ubuntu Chromium/56.0.2924.76 Chrome/56.0.2924.76 Safari/537.36',
+                          '(KHTML, like Gecko) Ubuntu Chromium/61.0.3163.79 Chrome/61.0.3163.79 Safari/537.36',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'Accept': 'application/json, text/javascript, */*; q=0.01',
             'Cache-Control': 'no-cache',
             'X-Requested-With': 'XMLHttpRequest',
             'Connection': 'keep-alive',
-            'Referer': 'http://www.speechpro.ru',
+            'Referer': 'https://www.speechpro.ru',
             'DNT': '1',
         }
 
@@ -61,8 +61,8 @@ class SessionSpeech:
              text_to_voice),
             ('csrfmiddlewaretoken', self.csrftoken),
         ]
-
         res = post(self.download_url, headers=headers, cookies=cookies, data=data)
+        print('Response for debug: ', res)
         wav_url = res.json()['response']
         wav_url_file = headers['Origin'] + '/' + wav_url
         chunk = 1024
