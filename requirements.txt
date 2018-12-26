@@ -1,2 +1,2 @@
-PyAudio==0.2.10
-requests==2.9.1
+PyAudio
+requests
